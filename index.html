@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inner Cosmos — A Personal Journal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Quicksand:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep: #faf9f7;
+    --cosmos: #ece5d8;
+    --nebula: #e3dacb;
+    --twilight: #d6cbb8;
+    --stardust: #8a7b68;
+    --silver: #000000;
+    --moonlight: #000000;
+    --starwhite: #000000;
+    --glow: #a3865a;
+    --aurora: #8b6f47;
+    --celestial: #7a8c6e;
+    --gold-accent: #c47a4a;
+    --warm-glow: #d49a6a;
+    --font-display: 'Cormorant Garamond', serif;
+    --font-body: 'Quicksand', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--deep);
+    color: var(--starwhite);
+    font-family: var(--font-body);
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Starfield Background ── */
+  #starfield {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: #c2a87a;
+    animation: twinkle var(--duration) ease-in-out infinite;
+    animation-delay: var(--delay);
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: var(--min-opacity); }
+    50% { opacity: var(--max-opacity); }
+  }
+
+  /* ── Nebula glow ── */
+  .nebula {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .nebula-1 { width: 600px; height: 600px; background: #c47a4a; top: -100px; right: -200px; }
+  .nebula-2 { width: 500px; height: 500px; background: #7a8c6e; bottom: 10%; left: -150px; }
+  .nebula-3 { width: 400px; height: 400px; background: #a3865a; top: 50%; right: 20%; }
+
+  /* ── Layout ── */
+  .app-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar Navigation ── */
+  .sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #ece5d8 0%, #e5ddd0 100%);
+    border-right: 1px solid rgba(163,134,90,0.15);
+    padding: 40px 0;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    backdrop-filter: blur(20px);
+  }
+
+  .site-title {
+    font-family: var(--font-display);
+    font-size: 28.5px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: var(--gold-accent);
+    text-align: center;
+    padding: 0 24px 8px;
+    line-height: 1.2;
+  }
+
+  .site-subtitle {
+    font-family: var(--font-display);
+    font-size: 13.5px;
+    font-style: italic;
+    color: var(--silver);
+    text-align: center;
+    padding: 0 24px 36px;
+    letter-spacing: 1px;
+  }
+
+  .nav-section {
+    padding: 0 16px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    margin: 2px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--silver);
+    letter-spacing: 0.5px;
+  }
+
+  .nav-item:hover {
+    background: rgba(163,134,90,0.08);
+    color: var(--starwhite);
+  }
+
+  .nav-item.active {
+    background: rgba(163,134,90,0.12);
+    color: var(--gold-accent);
+    border-left: 2px solid var(--gold-accent);
+  }
+
+  .nav-icon {
+    font-size: 18.5px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* ── Main Content ── */
+  .main-content {
+    margin-left: 260px;
+    flex: 1;
+    padding: 48px 60px;
+    max-width: 960px;
+  }
+
+  .page-header {
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(163,134,90,0.1);
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: 42.5px;
+    font-weight: 400;
+    color: var(--starwhite);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .page-epigraph {
+    font-family: var(--font-display);
+    font-size: 16.5px;
+    font-style: italic;
+    color: var(--silver);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Journal Entries ── */
+  .entries-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .entry-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fdfcfa 100%);
+    border: 1px solid rgba(163,134,90,0.08);
+    border-radius: 12px;
+    padding: 32px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .entry-card:hover {
+    border-color: rgba(163,134,90,0.2);
+    box-shadow: 0 4px 30px rgba(163,134,90,0.1);
+  }
+
+  .entry-date {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--gold-accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .entry-title {
+    font-family: var(--font-display);
+    font-size: 24.5px;
+    font-weight: 400;
+    color: var(--starwhite);
+    margin-bottom: 16px;
+    outline: none;
+    min-height: 34px;
+  }
+
+  .entry-body {
+    font-family: var(--font-body);
+    font-size: 15.5px;
+    font-weight: 400;
+    line-height: 1.8;
+    color: var(--starwhite);
+    outline: none;
+    min-height: 60px;
+  }
+
+  .entry-body a, .entry-card a {
+    color: var(--celestial);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(122,140,110,0.3);
+    transition: border-color 0.2s;
+  }
+
+  .entry-body a:hover { border-color: var(--celestial); }
+
+  .entry-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .entry-images img {
+    max-width: 300px;
+    max-height: 220px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid rgba(163,134,90,0.1);
+  }
+
+  .entry-actions {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .entry-card:hover .entry-actions { opacity: 1; }
+
+  .entry-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid rgba(163,134,90,0.15);
+    background: #ece5d8;
+    color: var(--silver);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14.5px;
+    transition: all 0.2s;
+  }
+
+  .entry-btn:hover {
+    background: rgba(163,134,90,0.15);
+    color: var(--starwhite);
+    border-color: rgba(163,134,90,0.3);
+  }
+
+  .entry-btn.delete:hover {
+    background: rgba(180,80,60,0.1);
+    border-color: rgba(180,80,60,0.3);
+    color: #c06050;
+  }
+
+  /* ── Add Entry Button ── */
+  .add-entry-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px 32px;
+    border: 1px dashed rgba(163,134,90,0.2);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--silver);
+    font-family: var(--font-body);
+    font-size: 14.5px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 8px;
+  }
+
+  .add-entry-btn:hover {
+    border-color: rgba(163,134,90,0.4);
+    color: var(--celestial);
+    background: rgba(163,134,90,0.04);
+  }
+
+  /* ── Image upload area ── */
+  .image-upload-zone {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border: 1px dashed rgba(163,134,90,0.15);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: var(--silver);
+    transition: all 0.2s;
+    display: none;
+  }
+
+  .entry-card:hover .image-upload-zone,
+  .entry-card:focus-within .image-upload-zone {
+    display: block;
+  }
+
+  .image-upload-zone:hover {
+    border-color: rgba(163,134,90,0.3);
+    color: var(--moonlight);
+  }
+
+  .img-remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(60,50,40,0.7);
+    color: #ddb8a0;
+    font-size: 12.5px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .img-wrapper { position: relative; display: inline-block; }
+  .img-wrapper:hover .img-remove-btn { display: flex; }
+
+  /* ── Calendar section ── */
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-top: 24px;
+    overflow: visible;
+  }
+
+  .cal-header {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--silver);
+    text-align: center;
+    padding: 8px 0;
+    letter-spacing: 1px;
+  }
+
+  .cal-day {
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 2px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: var(--moonlight);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    position: relative;
+    overflow: visible;
+  }
+
+  .cal-day:hover { background: rgba(163,134,90,0.08); }
+  .cal-day.today { border-color: var(--gold-accent); color: var(--gold-accent); }
+  .cal-day.has-note {
+    background: rgba(163,134,90,0.08);
+    border-color: rgba(163,134,90,0.2);
+  }
+  .cal-day.has-note::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold-accent);
+    position: absolute;
+    bottom: 6px;
+  }
+
+  .practice-dots {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: flex;
+    gap: 3px;
+    z-index: 10;
+  }
+
+  .practice-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(160,150,140,0.35);
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .practice-dot:hover {
+    transform: scale(1.2);
+  }
+
+  /* Hatha yoga - sage green */
+  .practice-dot.hatha.active {
+    background: #5a8a5a;
+    border-color: #4a7a4a;
+  }
+
+  /* Meditation - monk saffron/orange */
+  .practice-dot.meditation.active {
+    background: #d48a3a;
+    border-color: #c07a2a;
+  }
+
+  /* Exercise - sky blue */
+  .practice-dot.exercise.active {
+    background: #4a8ab0;
+    border-color: #3a7a9a;
+  }
+
+  /* Strong solid day fills — one practice = that color */
+  .cal-day.tint-hatha {
+    background: #c8dcc8;
+    border-color: #9aba9a;
+  }
+  .cal-day.tint-hatha .cal-note-preview,
+  .cal-day.tint-hatha { color: #1a1a1a; }
+
+  .cal-day.tint-meditation {
+    background: #f0d8b8;
+    border-color: #d4a86a;
+  }
+  .cal-day.tint-meditation .cal-note-preview,
+  .cal-day.tint-meditation { color: #1a1a1a; }
+
+  .cal-day.tint-exercise {
+    background: #bcd8e8;
+    border-color: #7ab0cc;
+  }
+  .cal-day.tint-exercise .cal-note-preview,
+  .cal-day.tint-exercise { color: #1a1a1a; }
+
+  /* Two practices — warm amber */
+  .cal-day.practices-2 {
+    background: #e8d4a0;
+    border-color: #c8aa60;
+  }
+  .cal-day.practices-2 .cal-note-preview,
+  .cal-day.practices-2 { color: #1a1a1a; }
+
+  /* All three — rich gold */
+  .cal-day.practices-3 {
+    background: #dcc870;
+    border-color: #b8a040;
+  }
+  .cal-day.practices-3 .cal-note-preview,
+  .cal-day.practices-3 { color: #1a1a1a; }
+
+  .cal-note-preview {
+    font-size: 9px;
+    color: #000000;
+    margin-top: 4px;
+    line-height: 1.3;
+    max-height: 44px;
+    overflow: hidden;
+    text-align: center;
+    padding: 0 3px;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    width: 100%;
+  }
+
+  .cal-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    border: 1px solid rgba(163,134,90,0.25);
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-width: 200px;
+    max-width: 280px;
+    box-shadow: 0 8px 24px rgba(60,50,40,0.15);
+    z-index: 50;
+    font-size: 13px;
+    font-weight: 400;
+    color: #000000;
+    line-height: 1.6;
+    text-align: left;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    pointer-events: none;
+  }
+
+  .cal-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #ffffff;
+  }
+
+  .cal-tooltip::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-top-color: rgba(163,134,90,0.25);
+  }
+
+  .cal-day.has-note:hover .cal-tooltip {
+    display: block;
+  }
+
+  .cal-day.empty { pointer-events: none; }
+
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+
+  .cal-nav-btn {
+    background: none;
+    border: 1px solid rgba(163,134,90,0.15);
+    border-radius: 6px;
+    color: var(--silver);
+    padding: 6px 14px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    transition: all 0.2s;
+  }
+
+  .cal-nav-btn:hover { border-color: var(--celestial); color: var(--celestial); }
+
+  .cal-month-label {
+    font-family: var(--font-display);
+    font-size: 22.5px;
+    color: var(--starwhite);
+    min-width: 200px;
+    text-align: center;
+  }
+
+  .cal-note-modal {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    border: 1px solid rgba(163,134,90,0.25);
+    border-radius: 12px;
+    padding: 32px;
+    z-index: 100;
+    width: 440px;
+    box-shadow: 0 20px 60px rgba(60,50,40,0.2);
+  }
+
+  .cal-note-modal.show { display: block; }
+
+  .cal-note-modal h3 {
+    font-family: var(--font-display);
+    font-size: 20.5px;
+    font-weight: 400;
+    color: var(--starwhite);
+    margin-bottom: 16px;
+  }
+
+  .cal-note-modal textarea {
+    width: 100%;
+    min-height: 120px;
+    background: #faf9f7;
+    border: 1px solid rgba(163,134,90,0.15);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--starwhite);
+    font-family: var(--font-body);
+    font-size: 14.5px;
+    resize: vertical;
+    outline: none;
+  }
+
+  .cal-note-modal textarea:focus { border-color: rgba(163,134,90,0.4); }
+
+  .cal-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .cal-modal-btn {
+    padding: 10px 24px;
+    border-radius: 6px;
+    border: 1px solid rgba(163,134,90,0.3);
+    background: #ffffff;
+    color: #000000;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .cal-modal-btn.save {
+    background: var(--gold-accent);
+    color: #ffffff;
+    border-color: var(--gold-accent);
+  }
+
+  .cal-modal-btn:hover { border-color: var(--gold-accent); }
+  .cal-modal-btn.save:hover { background: #b36a3a; }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(60,50,40,0.3);
+    z-index: 99;
+  }
+
+  .overlay.show { display: block; }
+
+  /* ── Placeholder text ── */
+  [contenteditable=true]:empty::before {
+    content: attr(data-placeholder);
+    color: var(--stardust);
+    font-style: italic;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--stardust); border-radius: 3px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .sidebar { width: 220px; }
+    .main-content { margin-left: 220px; padding: 32px 28px; }
+  }
+
+  @media (max-width: 700px) {
+    .sidebar {
+      width: 100%;
+      min-height: auto;
+      position: relative;
+      border-right: none;
+      border-bottom: 1px solid rgba(163,134,90,0.1);
+      padding: 20px 0;
+    }
+    .nav-section { display: flex; flex-wrap: wrap; gap: 4px; padding: 0 12px; }
+    .nav-item { padding: 8px 12px; font-size: 13.5px; }
+    .main-content { margin-left: 0; padding: 24px 20px; }
+    .app-container { flex-direction: column; }
+    .page-title { font-size: 32.5px; }
+  }
+
+  /* ── Fade-in ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .entry-card { animation: fadeUp 0.4s ease both; }
+</style>
+</head>
+<body>
+
+<!-- Nebula glow elements -->
+<div class="nebula nebula-1"></div>
+<div class="nebula nebula-2"></div>
+<div class="nebula nebula-3"></div>
+
+<!-- Starfield -->
+<div id="starfield"></div>
+
+<!-- Overlay for modals -->
+<div class="overlay" id="overlay" onclick="closeCalModal()"></div>
+
+<!-- Calendar note modal -->
+<div class="cal-note-modal" id="calModal">
+  <h3 id="calModalTitle"></h3>
+  <textarea id="calNoteInput" placeholder="Write a note for this day..."></textarea>
+  <div class="cal-modal-actions">
+    <button class="cal-modal-btn" onclick="closeCalModal()">Cancel</button>
+    <button class="cal-modal-btn save" onclick="saveCalNote()">Save</button>
+  </div>
+</div>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="site-title">Inner Cosmos</div>
+    <div class="site-subtitle">a personal journal</div>
+    <div class="nav-section">
+      <div class="nav-item active" data-section="spirituality">
+        <span class="nav-icon">✦</span> Spirituality
+      </div>
+      <div class="nav-item" data-section="quantum">
+        <span class="nav-icon">⟡</span> Quantum Physics
+      </div>
+      <div class="nav-item" data-section="fusion">
+        <span class="nav-icon">☉</span> Nuclear Fusion
+      </div>
+      <div class="nav-item" data-section="llms">
+        <span class="nav-icon">◈</span> LLMs
+      </div>
+      <div class="nav-item" data-section="film">
+        <span class="nav-icon">❖</span> Film
+      </div>
+      <div class="nav-item" data-section="music">
+        <span class="nav-icon">♫</span> Music
+      </div>
+      <div class="nav-item" data-section="home">
+        <span class="nav-icon">⌂</span> Home & Family
+      </div>
+      <div class="nav-item" data-section="travel">
+        <span class="nav-icon">✧</span> Travel
+      </div>
+      <div class="nav-item" data-section="calendar">
+        <span class="nav-icon">☽</span> Calendar
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+    <!-- Populated by JS -->
+  </main>
+</div>
+
+<script>
+// ── Section config ──
+const sections = {
+  spirituality: {
+    title: 'Spirituality',
+    epigraph: '"We are not human beings having a spiritual experience. We are spiritual beings having a human experience." — Pierre Teilhard de Chardin'
+  },
+  quantum: {
+    title: 'Quantum Physics',
+    epigraph: '"If quantum mechanics hasn\'t profoundly shocked you, you haven\'t understood it yet."'
+  },
+  fusion: {
+    title: 'Nuclear Fusion',
+    epigraph: '"We are all made of star stuff — and one day, we will learn to make our own stars."'
+  },
+  llms: {
+    title: 'LLMs',
+    epigraph: '"The question is not whether machines think, but what thinking will become."'
+  },
+  film: {
+    title: 'Film',
+    epigraph: '"Cinema is a mirror that can change the reflection."'
+  },
+  music: {
+    title: 'Music',
+    epigraph: '"Where words fail, music speaks."'
+  },
+  home: {
+    title: 'Home & Family',
+    epigraph: '"Home is not a place — it is a feeling."'
+  },
+  travel: {
+    title: 'Travel',
+    epigraph: '"Not all those who wander are lost."'
+  },
+  calendar: {
+    title: 'Calendar',
+    epigraph: '"Time is the most valuable thing a person can spend."'
+  }
+};
+
+let currentSection = 'spirituality';
+let calYear, calMonth, calSelectedDate;
+
+// ── Gist Cloud Storage ──
+const GIST_ID = '9a99c490e121e93670186720f2279166';
+let gistData = {};
+let saveTimeout = null;
+let isLoading = false;
+
+function getToken() {
+  return localStorage.getItem('inner_cosmos_token');
+}
+
+function setToken(token) {
+  localStorage.setItem('inner_cosmos_token', token);
+}
+
+function showTokenPrompt() {
+  const main = document.getElementById('mainContent');
+  main.innerHTML = `
+    <div class="page-header">
+      <h1 class="page-title">Welcome to Inner Cosmos</h1>
+      <p class="page-epigraph">Enter your GitHub personal access token to connect your journal.</p>
+    </div>
+    <div class="entry-card" style="max-width: 480px;">
+      <p style="margin-bottom: 16px; line-height: 1.6;">Your token is stored only in this browser and is used to read/write your private Gist. It is never sent anywhere else.</p>
+      <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx..."
+        style="width:100%; padding:12px; border:1px solid rgba(163,134,90,0.3); border-radius:8px; font-family:var(--font-body); font-size:14.5px; background:#faf9f7; color:#000; outline:none; margin-bottom:16px;" />
+      <button onclick="submitToken()" style="padding:10px 24px; border-radius:6px; border:1px solid var(--gold-accent); background:var(--gold-accent); color:#fff; font-family:var(--font-body); font-size:14px; font-weight:500; cursor:pointer;">Connect</button>
+      <p id="tokenError" style="color:#c06050; margin-top:12px; font-size:13px; display:none;"></p>
+    </div>
+  `;
+}
+
+async function submitToken() {
+  const token = document.getElementById('tokenInput').value.trim();
+  if (!token) return;
+  const errEl = document.getElementById('tokenError');
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+      headers: { 'Authorization': `token ${token}` }
+    });
+    if (!res.ok) throw new Error('Invalid token or Gist not accessible');
+    setToken(token);
+    await loadFromGist();
+    renderSection();
+  } catch (e) {
+    errEl.textContent = e.message + ' — please check your token and try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+async function loadFromGist() {
+  const token = getToken();
+  if (!token) return;
+  isLoading = true;
+  try {
+    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+      headers: { 'Authorization': `token ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to load');
+    const gist = await res.json();
+    const file = gist.files['inner-cosmos-data.json'];
+    if (file && file.content) {
+      gistData = JSON.parse(file.content);
+    }
+  } catch (e) {
+    console.error('Load error:', e);
+  }
+  isLoading = false;
+}
+
+function saveToGist() {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async () => {
+    const token = getToken();
+    if (!token) return;
+    try {
+      await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          files: { 'inner-cosmos-data.json': { content: JSON.stringify(gistData) } }
+        })
+      });
+    } catch (e) {
+      console.error('Save error:', e);
+    }
+  }, 1500);
+}
+
+// ── Storage helpers (backed by Gist) ──
+function getEntries(section) {
+  return gistData[`journal_${section}`] || [];
+}
+
+function saveEntries(section, entries) {
+  gistData[`journal_${section}`] = entries;
+  saveToGist();
+}
+
+function getCalNotes() {
+  return gistData['cal_notes'] || {};
+}
+
+function saveCalNotes(notes) {
+  gistData['cal_notes'] = notes;
+  saveToGist();
+}
+
+function getExerciseLog() {
+  return gistData['practices'] || {};
+}
+
+function saveExerciseLog(log) {
+  gistData['practices'] = log;
+  saveToGist();
+}
+
+function togglePractice(dateKey, practice, event) {
+  event.stopPropagation();
+  const log = getExerciseLog();
+  if (!log[dateKey]) log[dateKey] = {};
+  if (log[dateKey][practice]) {
+    delete log[dateKey][practice];
+    if (Object.keys(log[dateKey]).length === 0) delete log[dateKey];
+  } else {
+    log[dateKey][practice] = true;
+  }
+  saveExerciseLog(log);
+  renderCalendar();
+}
+
+// ── Generate starfield ──
+function createStars() {
+  const field = document.getElementById('starfield');
+  for (let i = 0; i < 180; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    star.style.width = size + 'px';
+    star.style.height = size + 'px';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.setProperty('--duration', (Math.random() * 4 + 2) + 's');
+    star.style.setProperty('--delay', (Math.random() * 5) + 's');
+    star.style.setProperty('--min-opacity', (Math.random() * 0.2 + 0.05).toFixed(2));
+    star.style.setProperty('--max-opacity', (Math.random() * 0.5 + 0.4).toFixed(2));
+    field.appendChild(star);
+  }
+}
+
+// ── Navigation ──
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    item.classList.add('active');
+    currentSection = item.dataset.section;
+    renderSection();
+  });
+});
+
+// ── Render section ──
+function renderSection() {
+  const main = document.getElementById('mainContent');
+  const sec = sections[currentSection];
+
+  if (currentSection === 'calendar') {
+    renderCalendar();
+    return;
+  }
+
+  const entries = getEntries(currentSection);
+
+  let html = `
+    <div class="page-header">
+      <h1 class="page-title">${sec.title}</h1>
+      <p class="page-epigraph">${sec.epigraph}</p>
+    </div>
+    <div class="entries-container" id="entriesContainer">
+  `;
+
+  entries.forEach((entry, i) => {
+    html += renderEntryCard(entry, i);
+  });
+
+  html += `</div>
+    <button class="add-entry-btn" onclick="addEntry()">
+      + New Entry
+    </button>`;
+
+  main.innerHTML = html;
+}
+
+function renderEntryCard(entry, index) {
+  const imagesHtml = (entry.images || []).map((src, imgIdx) => `
+    <div class="img-wrapper">
+      <img src="${src}" alt="">
+      <button class="img-remove-btn" onclick="removeImage(${index}, ${imgIdx})">×</button>
+    </div>
+  `).join('');
+
+  return `
+    <div class="entry-card" style="animation-delay: ${index * 0.05}s">
+      <div class="entry-actions">
+        <button class="entry-btn delete" onclick="deleteEntry(${index})" title="Delete entry">×</button>
+      </div>
+      <div class="entry-date">${entry.date}</div>
+      <div class="entry-title" contenteditable="true" data-placeholder="Entry title..."
+           oninput="updateEntry(${index}, 'title', this.textContent)">${entry.title || ''}</div>
+      <div class="entry-body" contenteditable="true" data-placeholder="Write your thoughts here..."
+           oninput="updateEntry(${index}, 'body', this.innerHTML)">${entry.body || ''}</div>
+      <div class="entry-images">${imagesHtml}</div>
+      <div class="image-upload-zone" onclick="triggerImageUpload(${index})">
+        + Add image (click to browse)
+      </div>
+    </div>
+  `;
+}
+
+// ── Entry operations ──
+function addEntry() {
+  const entries = getEntries(currentSection);
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  }).toUpperCase();
+
+  entries.unshift({
+    date: dateStr,
+    title: '',
+    body: '',
+    images: [],
+    created: now.toISOString()
+  });
+
+  saveEntries(currentSection, entries);
+  renderSection();
+
+  // Focus the new entry title
+  setTimeout(() => {
+    const firstTitle = document.querySelector('.entry-title');
+    if (firstTitle) firstTitle.focus();
+  }, 100);
+}
+
+function updateEntry(index, field, value) {
+  const entries = getEntries(currentSection);
+  if (entries[index]) {
+    entries[index][field] = value;
+    saveEntries(currentSection, entries);
+  }
+}
+
+function deleteEntry(index) {
+  if (!confirm('Remove this entry?')) return;
+  const entries = getEntries(currentSection);
+  entries.splice(index, 1);
+  saveEntries(currentSection, entries);
+  renderSection();
+}
+
+function triggerImageUpload(entryIndex) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.multiple = true;
+  input.onchange = (e) => {
+    Array.from(e.target.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const entries = getEntries(currentSection);
+        if (!entries[entryIndex].images) entries[entryIndex].images = [];
+        entries[entryIndex].images.push(ev.target.result);
+        saveEntries(currentSection, entries);
+        renderSection();
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+  input.click();
+}
+
+function removeImage(entryIndex, imgIndex) {
+  const entries = getEntries(currentSection);
+  entries[entryIndex].images.splice(imgIndex, 1);
+  saveEntries(currentSection, entries);
+  renderSection();
+}
+
+// ── Calendar ──
+function renderCalendar() {
+  const main = document.getElementById('mainContent');
+  const sec = sections.calendar;
+  const now = new Date();
+  if (!calYear) { calYear = now.getFullYear(); calMonth = now.getMonth(); }
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const monthName = new Date(calYear, calMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const notes = getCalNotes();
+  const practiceLog = getExerciseLog();
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  let html = `
+    <div class="page-header">
+      <h1 class="page-title">${sec.title}</h1>
+      <p class="page-epigraph">${sec.epigraph}</p>
+    </div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="changeMonth(-1)">◂ Prev</button>
+      <span class="cal-month-label">${monthName}</span>
+      <button class="cal-nav-btn" onclick="changeMonth(1)">Next ▸</button>
+    </div>
+    <div class="calendar-grid">
+      ${dayNames.map(d => `<div class="cal-header">${d}</div>`).join('')}
+      ${'<div class="cal-day empty"></div>'.repeat(firstDay)}
+  `;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateKey = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = d === now.getDate() && calMonth === now.getMonth() && calYear === now.getFullYear();
+    const hasNote = notes[dateKey];
+    const p = practiceLog[dateKey] || {};
+    const hatha = p.hatha;
+    const meditation = p.meditation;
+    const exercise = p.exercise;
+    const count = (hatha ? 1 : 0) + (meditation ? 1 : 0) + (exercise ? 1 : 0);
+
+    const preview = hasNote ? `<div class="cal-note-preview">${hasNote.substring(0, 30)}</div>` : '';
+    const tooltip = hasNote ? `<div class="cal-tooltip">${hasNote.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>` : '';
+
+    const dots = `<div class="practice-dots">` +
+      `<div class="practice-dot hatha ${hatha ? 'active' : ''}" onclick="togglePractice('${dateKey}','hatha',event)" title="Hatha Yoga"></div>` +
+      `<div class="practice-dot meditation ${meditation ? 'active' : ''}" onclick="togglePractice('${dateKey}','meditation',event)" title="Meditation"></div>` +
+      `<div class="practice-dot exercise ${exercise ? 'active' : ''}" onclick="togglePractice('${dateKey}','exercise',event)" title="Exercise"></div>` +
+      `</div>`;
+
+    // Build tint class
+    let tintClass = '';
+    if (count === 3) {
+      tintClass = 'practices-3';
+    } else if (count === 2) {
+      tintClass = 'practices-2';
+    } else if (count === 1) {
+      if (hatha) tintClass = 'tint-hatha';
+      else if (meditation) tintClass = 'tint-meditation';
+      else if (exercise) tintClass = 'tint-exercise';
+    }
+
+    const classes = [
+      isToday ? 'today' : '',
+      hasNote ? 'has-note' : '',
+      tintClass
+    ].filter(Boolean).join(' ');
+
+    html += `<div class="cal-day ${classes}"
+                  onclick="openCalNote('${dateKey}', ${d})">${dots}${d}${preview}${tooltip}</div>`;
+  }
+
+  html += `</div>`;
+  main.innerHTML = html;
+}
+
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function openCalNote(dateKey, day) {
+  calSelectedDate = dateKey;
+  const notes = getCalNotes();
+  const d = new Date(calYear, calMonth, day);
+  const label = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  document.getElementById('calModalTitle').textContent = label;
+  document.getElementById('calNoteInput').value = notes[dateKey] || '';
+  document.getElementById('calModal').classList.add('show');
+  document.getElementById('overlay').classList.add('show');
+  setTimeout(() => document.getElementById('calNoteInput').focus(), 100);
+}
+
+function closeCalModal() {
+  document.getElementById('calModal').classList.remove('show');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function saveCalNote() {
+  const notes = getCalNotes();
+  const val = document.getElementById('calNoteInput').value.trim();
+  if (val) { notes[calSelectedDate] = val; }
+  else { delete notes[calSelectedDate]; }
+  saveCalNotes(notes);
+  closeCalModal();
+  renderCalendar();
+}
+
+// ── Init ──
+createStars();
+(async function init() {
+  const token = getToken();
+  if (!token) {
+    showTokenPrompt();
+    return;
+  }
+  await loadFromGist();
+  renderSection();
+})();
+</script>
+</body>
+</html>
