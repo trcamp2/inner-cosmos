@@ -426,8 +426,8 @@
   }
 
   .practice-dot {
-    width: 13px;
-    height: 13px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     border: 1.5px solid rgba(160,150,140,0.35);
     background: #ffffff;
@@ -822,9 +822,11 @@ let calYear, calMonth, calSelectedDate;
 
 // ── Gist Cloud Storage ──
 const GIST_ID = '9a99c490e121e93670186720f2279166';
+const READER_PASSWORD = 'view';
 let gistData = {};
 let saveTimeout = null;
 let isLoading = false;
+let isReadOnly = false;
 
 function getToken() {
   return localStorage.getItem('inner_cosmos_token');
@@ -834,19 +836,72 @@ function setToken(token) {
   localStorage.setItem('inner_cosmos_token', token);
 }
 
-function showTokenPrompt() {
+function getReaderAuth() {
+  return localStorage.getItem('inner_cosmos_reader') === 'true';
+}
+
+function setReaderAuth() {
+  localStorage.setItem('inner_cosmos_reader', 'true');
+}
+
+// Simple encrypt/decrypt using password
+async function deriveKey(password) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: enc.encode('inner-cosmos-salt'), iterations: 100000, hash: 'SHA-256' },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function encryptData(data, password) {
+  const key = await deriveKey(password);
+  const enc = new TextEncoder();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(data)));
+  const combined = new Uint8Array(iv.length + encrypted.byteLength);
+  combined.set(iv);
+  combined.set(new Uint8Array(encrypted), iv.length);
+  return btoa(String.fromCharCode(...combined));
+}
+
+async function decryptData(base64, password) {
+  const key = await deriveKey(password);
+  const raw = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+  const iv = raw.slice(0, 12);
+  const data = raw.slice(12);
+  const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+  return JSON.parse(new TextDecoder().decode(decrypted));
+}
+
+function showLoginPrompt() {
   const main = document.getElementById('mainContent');
   main.innerHTML = `
     <div class="page-header">
       <h1 class="page-title">Welcome to Inner Cosmos</h1>
-      <p class="page-epigraph">Enter your GitHub personal access token to connect your journal.</p>
+      <p class="page-epigraph">A personal journal of spirit, science, and discovery.</p>
     </div>
     <div class="entry-card" style="max-width: 480px;">
-      <p style="margin-bottom: 16px; line-height: 1.6;">Your token is stored only in this browser and is used to read/write your private Gist. It is never sent anywhere else.</p>
-      <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx..."
-        style="width:100%; padding:12px; border:1px solid rgba(163,134,90,0.3); border-radius:8px; font-family:var(--font-body); font-size:14.5px; background:#faf9f7; color:#000; outline:none; margin-bottom:16px;" />
-      <button onclick="submitToken()" style="padding:10px 24px; border-radius:6px; border:1px solid var(--gold-accent); background:var(--gold-accent); color:#fff; font-family:var(--font-body); font-size:14px; font-weight:500; cursor:pointer;">Connect</button>
-      <p id="tokenError" style="color:#c06050; margin-top:12px; font-size:13px; display:none;"></p>
+      <p style="margin-bottom: 20px; line-height: 1.6; font-size: 15px;">Choose how to access this journal:</p>
+
+      <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid rgba(163,134,90,0.15);">
+        <p style="font-weight: 600; margin-bottom: 10px;">Owner (full access)</p>
+        <input type="password" id="tokenInput" placeholder="GitHub token (ghp_...)"
+          style="width:100%; padding:12px; border:1px solid rgba(163,134,90,0.3); border-radius:8px; font-family:var(--font-body); font-size:14.5px; background:#faf9f7; color:#000; outline:none; margin-bottom:10px;" />
+        <button onclick="submitToken()" style="padding:10px 24px; border-radius:6px; border:1px solid var(--gold-accent); background:var(--gold-accent); color:#fff; font-family:var(--font-body); font-size:14px; font-weight:500; cursor:pointer;">Connect</button>
+      </div>
+
+      <div>
+        <p style="font-weight: 600; margin-bottom: 10px;">Reader (view only)</p>
+        <input type="password" id="readerInput" placeholder="Reader password"
+          style="width:100%; padding:12px; border:1px solid rgba(163,134,90,0.3); border-radius:8px; font-family:var(--font-body); font-size:14.5px; background:#faf9f7; color:#000; outline:none; margin-bottom:10px;" />
+        <button onclick="submitReader()" style="padding:10px 24px; border-radius:6px; border:1px solid var(--celestial); background:var(--celestial); color:#fff; font-family:var(--font-body); font-size:14px; font-weight:500; cursor:pointer;">View Journal</button>
+      </div>
+
+      <p id="loginError" style="color:#c06050; margin-top:12px; font-size:13px; display:none;"></p>
     </div>
   `;
 }
@@ -854,7 +909,7 @@ function showTokenPrompt() {
 async function submitToken() {
   const token = document.getElementById('tokenInput').value.trim();
   if (!token) return;
-  const errEl = document.getElementById('tokenError');
+  const errEl = document.getElementById('loginError');
   errEl.style.display = 'none';
 
   try {
@@ -863,10 +918,45 @@ async function submitToken() {
     });
     if (!res.ok) throw new Error('Invalid token or Gist not accessible');
     setToken(token);
+    isReadOnly = false;
     await loadFromGist();
     renderSection();
   } catch (e) {
     errEl.textContent = e.message + ' — please check your token and try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+async function submitReader() {
+  const password = document.getElementById('readerInput').value.trim();
+  if (!password) return;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+
+  if (password !== READER_PASSWORD) {
+    errEl.textContent = 'Incorrect password.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Reader needs the token to fetch encrypted data from Gist
+  // We'll try loading the encrypted file from Gist without auth (public readable portion)
+  // Since Gist is private, we store encrypted snapshot in localStorage from owner sessions
+  // and also try fetching via a cached approach
+
+  try {
+    const cached = localStorage.getItem('inner_cosmos_encrypted');
+    if (!cached) {
+      errEl.textContent = 'No journal data available yet. The owner needs to save entries from this device first, or share the journal file directly.';
+      errEl.style.display = 'block';
+      return;
+    }
+    gistData = await decryptData(cached, READER_PASSWORD);
+    isReadOnly = true;
+    setReaderAuth();
+    renderSection();
+  } catch (e) {
+    errEl.textContent = 'Unable to decrypt journal data. Please check the password.';
     errEl.style.display = 'block';
   }
 }
@@ -885,6 +975,11 @@ async function loadFromGist() {
     if (file && file.content) {
       gistData = JSON.parse(file.content);
     }
+    // Cache encrypted snapshot for readers on this device
+    try {
+      const encrypted = await encryptData(gistData, READER_PASSWORD);
+      localStorage.setItem('inner_cosmos_encrypted', encrypted);
+    } catch(e) { console.error('Encrypt cache error:', e); }
   } catch (e) {
     console.error('Load error:', e);
   }
@@ -892,6 +987,7 @@ async function loadFromGist() {
 }
 
 function saveToGist() {
+  if (isReadOnly) return;
   if (saveTimeout) clearTimeout(saveTimeout);
   saveTimeout = setTimeout(async () => {
     const token = getToken();
@@ -907,6 +1003,11 @@ function saveToGist() {
           files: { 'inner-cosmos-data.json': { content: JSON.stringify(gistData) } }
         })
       });
+      // Update encrypted cache for readers
+      try {
+        const encrypted = await encryptData(gistData, READER_PASSWORD);
+        localStorage.setItem('inner_cosmos_encrypted', encrypted);
+      } catch(e) { console.error('Encrypt cache error:', e); }
     } catch (e) {
       console.error('Save error:', e);
     }
@@ -919,6 +1020,7 @@ function getEntries(section) {
 }
 
 function saveEntries(section, entries) {
+  if (isReadOnly) return;
   gistData[`journal_${section}`] = entries;
   saveToGist();
 }
@@ -928,6 +1030,7 @@ function getCalNotes() {
 }
 
 function saveCalNotes(notes) {
+  if (isReadOnly) return;
   gistData['cal_notes'] = notes;
   saveToGist();
 }
@@ -937,12 +1040,14 @@ function getExerciseLog() {
 }
 
 function saveExerciseLog(log) {
+  if (isReadOnly) return;
   gistData['practices'] = log;
   saveToGist();
 }
 
 function togglePractice(dateKey, practice, event) {
   event.stopPropagation();
+  if (isReadOnly) return;
   const log = getExerciseLog();
   if (!log[dateKey]) log[dateKey] = {};
   if (log[dateKey][practice]) {
@@ -1000,6 +1105,7 @@ function renderSection() {
     <div class="page-header">
       <h1 class="page-title">${sec.title}</h1>
       <p class="page-epigraph">${sec.epigraph}</p>
+      ${isReadOnly ? '<p style="font-size:12px; color:var(--gold-accent); margin-top:8px;">Viewing in read-only mode</p>' : ''}
     </div>
     <div class="entries-container" id="entriesContainer">
   `;
@@ -1008,36 +1114,40 @@ function renderSection() {
     html += renderEntryCard(entry, i);
   });
 
-  html += `</div>
-    <button class="add-entry-btn" onclick="addEntry()">
+  html += `</div>`;
+
+  if (!isReadOnly) {
+    html += `<button class="add-entry-btn" onclick="addEntry()">
       + New Entry
     </button>`;
+  }
 
   main.innerHTML = html;
 }
 
 function renderEntryCard(entry, index) {
+  const editable = !isReadOnly;
   const imagesHtml = (entry.images || []).map((src, imgIdx) => `
     <div class="img-wrapper">
       <img src="${src}" alt="">
-      <button class="img-remove-btn" onclick="removeImage(${index}, ${imgIdx})">×</button>
+      ${editable ? `<button class="img-remove-btn" onclick="removeImage(${index}, ${imgIdx})">×</button>` : ''}
     </div>
   `).join('');
 
   return `
     <div class="entry-card" style="animation-delay: ${index * 0.05}s">
-      <div class="entry-actions">
+      ${editable ? `<div class="entry-actions">
         <button class="entry-btn delete" onclick="deleteEntry(${index})" title="Delete entry">×</button>
-      </div>
+      </div>` : ''}
       <div class="entry-date">${entry.date}</div>
-      <div class="entry-title" contenteditable="true" data-placeholder="Entry title..."
-           oninput="updateEntry(${index}, 'title', this.textContent)">${entry.title || ''}</div>
-      <div class="entry-body" contenteditable="true" data-placeholder="Write your thoughts here..."
-           oninput="updateEntry(${index}, 'body', this.innerHTML)">${entry.body || ''}</div>
+      <div class="entry-title" ${editable ? `contenteditable="true" data-placeholder="Entry title..."
+           oninput="updateEntry(${index}, 'title', this.textContent)"` : ''}>${entry.title || ''}</div>
+      <div class="entry-body" ${editable ? `contenteditable="true" data-placeholder="Write your thoughts here..."
+           oninput="updateEntry(${index}, 'body', this.innerHTML)"` : ''}>${entry.body || ''}</div>
       <div class="entry-images">${imagesHtml}</div>
-      <div class="image-upload-zone" onclick="triggerImageUpload(${index})">
+      ${editable ? `<div class="image-upload-zone" onclick="triggerImageUpload(${index})">
         + Add image (click to browse)
-      </div>
+      </div>` : ''}
     </div>
   `;
 }
@@ -1212,6 +1322,7 @@ function closeCalModal() {
 }
 
 function saveCalNote() {
+  if (isReadOnly) { closeCalModal(); return; }
   const notes = getCalNotes();
   const val = document.getElementById('calNoteInput').value.trim();
   if (val) { notes[calSelectedDate] = val; }
@@ -1225,12 +1336,24 @@ function saveCalNote() {
 createStars();
 (async function init() {
   const token = getToken();
-  if (!token) {
-    showTokenPrompt();
+  if (token) {
+    isReadOnly = false;
+    await loadFromGist();
+    renderSection();
     return;
   }
-  await loadFromGist();
-  renderSection();
+  if (getReaderAuth()) {
+    const cached = localStorage.getItem('inner_cosmos_encrypted');
+    if (cached) {
+      try {
+        gistData = await decryptData(cached, READER_PASSWORD);
+        isReadOnly = true;
+        renderSection();
+        return;
+      } catch(e) { /* fall through to login */ }
+    }
+  }
+  showLoginPrompt();
 })();
 </script>
 </body>
