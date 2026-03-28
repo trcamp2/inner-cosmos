@@ -419,7 +419,7 @@
   .practice-dots {
     position: absolute;
     top: 4px;
-    right: 4px;
+    right: 3px;
     display: flex;
     gap: 2px;
     z-index: 10;
@@ -439,8 +439,8 @@
     transform: scale(1.2);
   }
 
-  /* Hatha yoga - sage green */
-  .practice-dot.hatha.active {
+  /* Yoga - sage green */
+  .practice-dot.yoga.active {
     background: #5a8a5a;
     border-color: #4a7a4a;
   }
@@ -451,56 +451,23 @@
     border-color: #c07a2a;
   }
 
-  /* Exercise - sky blue */
-  .practice-dot.exercise.active {
+  /* Aerobic - sky blue */
+  .practice-dot.aerobic.active {
     background: #4a8ab0;
     border-color: #3a7a9a;
   }
 
-  /* Strong solid day fills — one practice = that color */
-  .cal-day.tint-hatha {
-    background: #c8dcc8;
-    border-color: #9aba9a;
+  /* Strength - warm plum */
+  .practice-dot.strength.active {
+    background: #9a6a8a;
+    border-color: #8a5a7a;
   }
-  .cal-day.tint-hatha .cal-note-preview,
-  .cal-day.tint-hatha { color: #1a1a1a; }
-
-  .cal-day.tint-meditation {
-    background: #f0d8b8;
-    border-color: #d4a86a;
-  }
-  .cal-day.tint-meditation .cal-note-preview,
-  .cal-day.tint-meditation { color: #1a1a1a; }
-
-  .cal-day.tint-exercise {
-    background: #bcd8e8;
-    border-color: #7ab0cc;
-  }
-  .cal-day.tint-exercise .cal-note-preview,
-  .cal-day.tint-exercise { color: #1a1a1a; }
-
-  /* Two practices — warm amber */
-  .cal-day.practices-2 {
-    background: #e8d4a0;
-    border-color: #c8aa60;
-  }
-  .cal-day.practices-2 .cal-note-preview,
-  .cal-day.practices-2 { color: #1a1a1a; }
-
-  /* All three — rich gold */
-  .cal-day.practices-3 {
-    background: #dcc870;
-    border-color: #b8a040;
-  }
-  .cal-day.practices-3 .cal-note-preview,
-  .cal-day.practices-3 { color: #1a1a1a; }
 
   .cal-note-preview {
     font-size: 9px;
     color: #000000;
     margin-top: 4px;
     line-height: 1.3;
-    max-height: 44px;
     overflow: hidden;
     text-align: center;
     padding: 0 3px;
@@ -508,6 +475,9 @@
     word-break: break-word;
     white-space: normal;
     width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
   }
 
   .cal-tooltip {
@@ -587,6 +557,129 @@
     font-size: 22.5px;
     color: var(--starwhite);
     min-width: 200px;
+    text-align: center;
+  }
+
+  .cal-view-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid rgba(163,134,90,0.25);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-left: 16px;
+  }
+
+  .cal-view-btn {
+    background: none;
+    border: none;
+    color: var(--stardust);
+    padding: 6px 14px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+
+  .cal-view-btn.active {
+    background: rgba(163,134,90,0.15);
+    color: var(--gold-accent);
+  }
+
+  .cal-view-btn:hover:not(.active) {
+    background: rgba(163,134,90,0.06);
+  }
+
+  /* ── Week View ── */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-top: 24px;
+  }
+
+  .week-header {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--silver);
+    text-align: center;
+    padding: 8px 0;
+    letter-spacing: 1px;
+  }
+
+  .week-day {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 6px;
+    border-radius: 10px;
+    font-size: 15px;
+    color: var(--moonlight);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid rgba(163,134,90,0.1);
+    position: relative;
+    background: rgba(255,255,255,0.4);
+  }
+
+  .week-day:hover { background: rgba(163,134,90,0.08); }
+  .week-day.today { border-color: var(--gold-accent); color: var(--gold-accent); }
+  .week-day.has-note {
+    background: rgba(163,134,90,0.06);
+    border-color: rgba(163,134,90,0.2);
+  }
+
+  .week-day .practice-dots {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-top: 8px;
+    gap: 4px;
+  }
+
+  .week-day .practice-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .week-day-number {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+
+  .week-day-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--stardust);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .week-note-preview {
+    font-size: 11px;
+    color: var(--silver);
+    margin-top: 8px;
+    line-height: 1.4;
+    max-height: 80px;
+    overflow: hidden;
+    text-align: center;
+    padding: 0 4px;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    width: 100%;
+  }
+
+  .week-nav-label {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--starwhite);
+    min-width: 260px;
     text-align: center;
   }
 
@@ -819,6 +912,8 @@ const sections = {
 
 let currentSection = 'spirituality';
 let calYear, calMonth, calSelectedDate;
+let calView = 'month'; // 'month' or 'week'
+let calWeekStart = null; // Date object for start of current week view
 
 // ── Gist Cloud Storage ──
 const GIST_ID = '9a99c490e121e93670186720f2279166';
@@ -975,6 +1070,7 @@ async function loadFromGist() {
     if (file && file.content) {
       gistData = JSON.parse(file.content);
     }
+    migratePracticeKeys();
     // Cache encrypted snapshot for readers on this device
     try {
       const encrypted = await encryptData(gistData, READER_PASSWORD);
@@ -984,6 +1080,29 @@ async function loadFromGist() {
     console.error('Load error:', e);
   }
   isLoading = false;
+}
+
+// ── Migrate old practice keys: hatha→yoga, exercise→aerobic ──
+function migratePracticeKeys() {
+  const log = gistData['practices'];
+  if (!log) return;
+  let changed = false;
+  for (const dateKey in log) {
+    const p = log[dateKey];
+    if (p.hatha !== undefined) {
+      p.yoga = p.hatha;
+      delete p.hatha;
+      changed = true;
+    }
+    if (p.exercise !== undefined) {
+      p.aerobic = p.exercise;
+      delete p.exercise;
+      changed = true;
+    }
+  }
+  if (changed && !isReadOnly) {
+    saveToGist();
+  }
 }
 
 function saveToGist() {
@@ -1224,6 +1343,10 @@ function removeImage(entryIndex, imgIndex) {
 
 // ── Calendar ──
 function renderCalendar() {
+  if (calView === 'week') {
+    renderWeekView();
+    return;
+  }
   const main = document.getElementById('mainContent');
   const sec = sections.calendar;
   const now = new Date();
@@ -1246,6 +1369,10 @@ function renderCalendar() {
       <button class="cal-nav-btn" onclick="changeMonth(-1)">◂ Prev</button>
       <span class="cal-month-label">${monthName}</span>
       <button class="cal-nav-btn" onclick="changeMonth(1)">Next ▸</button>
+      <div class="cal-view-toggle">
+        <button class="cal-view-btn active" onclick="setCalView('month')">Month</button>
+        <button class="cal-view-btn" onclick="setCalView('week')">Week</button>
+      </div>
     </div>
     <div class="calendar-grid">
       ${dayNames.map(d => `<div class="cal-header">${d}</div>`).join('')}
@@ -1257,36 +1384,15 @@ function renderCalendar() {
     const isToday = d === now.getDate() && calMonth === now.getMonth() && calYear === now.getFullYear();
     const hasNote = notes[dateKey];
     const p = practiceLog[dateKey] || {};
-    const hatha = p.hatha;
-    const meditation = p.meditation;
-    const exercise = p.exercise;
-    const count = (hatha ? 1 : 0) + (meditation ? 1 : 0) + (exercise ? 1 : 0);
 
-    const preview = hasNote ? `<div class="cal-note-preview">${hasNote.substring(0, 30)}</div>` : '';
+    const preview = hasNote ? `<div class="cal-note-preview">${hasNote.substring(0, 80)}</div>` : '';
     const tooltip = hasNote ? `<div class="cal-tooltip">${hasNote.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>` : '';
 
-    const dots = `<div class="practice-dots">` +
-      `<div class="practice-dot hatha ${hatha ? 'active' : ''}" onclick="togglePractice('${dateKey}','hatha',event)" title="Hatha Yoga"></div>` +
-      `<div class="practice-dot meditation ${meditation ? 'active' : ''}" onclick="togglePractice('${dateKey}','meditation',event)" title="Meditation"></div>` +
-      `<div class="practice-dot exercise ${exercise ? 'active' : ''}" onclick="togglePractice('${dateKey}','exercise',event)" title="Exercise"></div>` +
-      `</div>`;
-
-    // Build tint class
-    let tintClass = '';
-    if (count === 3) {
-      tintClass = 'practices-3';
-    } else if (count === 2) {
-      tintClass = 'practices-2';
-    } else if (count === 1) {
-      if (hatha) tintClass = 'tint-hatha';
-      else if (meditation) tintClass = 'tint-meditation';
-      else if (exercise) tintClass = 'tint-exercise';
-    }
+    const dots = buildPracticeDots(dateKey, p);
 
     const classes = [
       isToday ? 'today' : '',
-      hasNote ? 'has-note' : '',
-      tintClass
+      hasNote ? 'has-note' : ''
     ].filter(Boolean).join(' ');
 
     html += `<div class="cal-day ${classes}"
@@ -1295,6 +1401,100 @@ function renderCalendar() {
 
   html += `</div>`;
   main.innerHTML = html;
+}
+
+function buildPracticeDots(dateKey, p) {
+  return `<div class="practice-dots">` +
+    `<div class="practice-dot yoga ${p.yoga ? 'active' : ''}" onclick="togglePractice('${dateKey}','yoga',event)" title="Yoga"></div>` +
+    `<div class="practice-dot meditation ${p.meditation ? 'active' : ''}" onclick="togglePractice('${dateKey}','meditation',event)" title="Meditation"></div>` +
+    `<div class="practice-dot aerobic ${p.aerobic ? 'active' : ''}" onclick="togglePractice('${dateKey}','aerobic',event)" title="Aerobic"></div>` +
+    `<div class="practice-dot strength ${p.strength ? 'active' : ''}" onclick="togglePractice('${dateKey}','strength',event)" title="Strength"></div>` +
+    `</div>`;
+}
+
+function setCalView(view) {
+  calView = view;
+  if (view === 'week' && !calWeekStart) {
+    const now = new Date();
+    const day = now.getDay();
+    calWeekStart = new Date(now);
+    calWeekStart.setDate(now.getDate() - day);
+    calWeekStart.setHours(0,0,0,0);
+  }
+  renderCalendar();
+}
+
+function renderWeekView() {
+  const main = document.getElementById('mainContent');
+  const sec = sections.calendar;
+  const now = new Date();
+  now.setHours(0,0,0,0);
+
+  if (!calWeekStart) {
+    const day = now.getDay();
+    calWeekStart = new Date(now);
+    calWeekStart.setDate(now.getDate() - day);
+  }
+
+  const weekEnd = new Date(calWeekStart);
+  weekEnd.setDate(calWeekStart.getDate() + 6);
+
+  const startLabel = calWeekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const endLabel = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  const notes = getCalNotes();
+  const practiceLog = getExerciseLog();
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  let html = `
+    <div class="page-header">
+      <h1 class="page-title">${sec.title}</h1>
+      <p class="page-epigraph">${sec.epigraph}</p>
+    </div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="changeWeek(-1)">◂ Prev</button>
+      <span class="week-nav-label">${startLabel} — ${endLabel}</span>
+      <button class="cal-nav-btn" onclick="changeWeek(1)">Next ▸</button>
+      <div class="cal-view-toggle">
+        <button class="cal-view-btn" onclick="setCalView('month')">Month</button>
+        <button class="cal-view-btn active" onclick="setCalView('week')">Week</button>
+      </div>
+    </div>
+    <div class="week-grid">
+  `;
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(calWeekStart);
+    d.setDate(calWeekStart.getDate() + i);
+    const dateKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const isToday = d.getTime() === now.getTime();
+    const hasNote = notes[dateKey];
+    const p = practiceLog[dateKey] || {};
+    const dayName = dayNames[d.getDay()];
+
+    const preview = hasNote ? `<div class="week-note-preview">${hasNote.substring(0, 80)}</div>` : '';
+    const dots = buildPracticeDots(dateKey, p);
+
+    const classes = [
+      isToday ? 'today' : '',
+      hasNote ? 'has-note' : ''
+    ].filter(Boolean).join(' ');
+
+    html += `<div class="week-day ${classes}" onclick="openCalNote('${dateKey}', ${d.getDate()})">
+      <div class="week-day-name">${dayName}</div>
+      <div class="week-day-number">${d.getDate()}</div>
+      ${dots}
+      ${preview}
+    </div>`;
+  }
+
+  html += `</div>`;
+  main.innerHTML = html;
+}
+
+function changeWeek(delta) {
+  calWeekStart.setDate(calWeekStart.getDate() + (delta * 7));
+  renderCalendar();
 }
 
 function changeMonth(delta) {
@@ -1307,7 +1507,8 @@ function changeMonth(delta) {
 function openCalNote(dateKey, day) {
   calSelectedDate = dateKey;
   const notes = getCalNotes();
-  const d = new Date(calYear, calMonth, day);
+  const parts = dateKey.split('-');
+  const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
   const label = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   document.getElementById('calModalTitle').textContent = label;
   document.getElementById('calNoteInput').value = notes[dateKey] || '';
