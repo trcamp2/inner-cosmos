@@ -418,21 +418,33 @@
 
   .practice-dots {
     position: absolute;
-    top: 4px;
-    right: 3px;
+    top: 3px;
+    right: 2px;
     display: flex;
-    gap: 2px;
+    gap: 1px;
     z-index: 10;
   }
 
   .practice-dot {
-    width: 7px;
-    height: 7px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     border: 1.5px solid rgba(120,110,100,0.5);
     background: #d8d0c6;
     cursor: pointer;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7px;
+    font-weight: 700;
+    font-family: var(--font-body);
+    color: rgba(100,90,80,0.6);
+    line-height: 1;
+  }
+
+  .practice-dot.active {
+    color: rgba(255,255,255,0.9);
   }
 
   .practice-dot:hover {
@@ -640,8 +652,9 @@
   }
 
   .week-day .practice-dot {
-    width: 10px;
-    height: 10px;
+    width: 16px;
+    height: 16px;
+    font-size: 9px;
   }
 
   .week-day-number {
@@ -1405,10 +1418,10 @@ function renderCalendar() {
 
 function buildPracticeDots(dateKey, p) {
   return `<div class="practice-dots">` +
-    `<div class="practice-dot yoga ${p.yoga ? 'active' : ''}" onclick="togglePractice('${dateKey}','yoga',event)" title="Yoga"></div>` +
-    `<div class="practice-dot meditation ${p.meditation ? 'active' : ''}" onclick="togglePractice('${dateKey}','meditation',event)" title="Meditation"></div>` +
-    `<div class="practice-dot aerobic ${p.aerobic ? 'active' : ''}" onclick="togglePractice('${dateKey}','aerobic',event)" title="Aerobic"></div>` +
-    `<div class="practice-dot strength ${p.strength ? 'active' : ''}" onclick="togglePractice('${dateKey}','strength',event)" title="Strength"></div>` +
+    `<div class="practice-dot yoga ${p.yoga ? 'active' : ''}" onclick="togglePractice('${dateKey}','yoga',event)" title="Yoga">Y</div>` +
+    `<div class="practice-dot meditation ${p.meditation ? 'active' : ''}" onclick="togglePractice('${dateKey}','meditation',event)" title="Meditation">M</div>` +
+    `<div class="practice-dot aerobic ${p.aerobic ? 'active' : ''}" onclick="togglePractice('${dateKey}','aerobic',event)" title="Aerobic">A</div>` +
+    `<div class="practice-dot strength ${p.strength ? 'active' : ''}" onclick="togglePractice('${dateKey}','strength',event)" title="Strength">S</div>` +
     `</div>`;
 }
 
