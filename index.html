@@ -389,16 +389,18 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding: 8px 2px;
+    padding: 8px 2px 8px 16px;
     border-radius: 8px;
     font-size: 13.5px;
     color: var(--moonlight);
     cursor: pointer;
     transition: all 0.2s;
-    border: 1px solid transparent;
+    border: 1px solid rgba(163,134,90,0.15);
     position: relative;
     overflow: visible;
   }
+
+  .cal-day.empty { border-color: transparent; pointer-events: none; }
 
   .cal-day:hover { background: rgba(163,134,90,0.08); }
   .cal-day.today { border-color: var(--gold-accent); color: var(--gold-accent); }
@@ -483,7 +485,7 @@
     line-height: 1.3;
     overflow: hidden;
     text-align: center;
-    padding: 0 3px;
+    padding: 0 1px;
     word-wrap: break-word;
     word-break: break-word;
     white-space: normal;
@@ -541,7 +543,6 @@
     display: block;
   }
 
-  .cal-day.empty { pointer-events: none; }
 
   .cal-nav {
     display: flex;
