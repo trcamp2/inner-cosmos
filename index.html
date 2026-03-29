@@ -419,8 +419,9 @@
   .practice-dots {
     position: absolute;
     top: 3px;
-    right: 2px;
+    left: 2px;
     display: flex;
+    flex-direction: column;
     gap: 1px;
     z-index: 10;
   }
@@ -644,11 +645,11 @@
   }
 
   .week-day .practice-dots {
-    position: relative;
-    top: auto;
-    right: auto;
-    margin-top: 8px;
-    gap: 4px;
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    margin-top: 0;
+    gap: 2px;
   }
 
   .week-day .practice-dot {
