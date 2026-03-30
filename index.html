@@ -210,6 +210,39 @@
     letter-spacing: 1.5px;
     text-transform: uppercase;
     margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .italic-toggle {
+    background: none;
+    border: 1px solid rgba(163,134,90,0.2);
+    border-radius: 4px;
+    color: var(--stardust);
+    cursor: pointer;
+    font-size: 13px;
+    font-style: italic;
+    font-family: var(--font-display);
+    padding: 2px 7px;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+
+  .italic-toggle:hover {
+    border-color: rgba(163,134,90,0.4);
+    color: var(--gold-accent);
+  }
+
+  .italic-toggle.active {
+    background: rgba(163,134,90,0.12);
+    border-color: var(--gold-accent);
+    color: var(--gold-accent);
+  }
+
+  .entry-card.entry-italic .entry-title,
+  .entry-card.entry-italic .entry-body {
+    font-style: italic;
   }
 
   .entry-title {
@@ -230,6 +263,17 @@
     color: var(--starwhite);
     outline: none;
     min-height: 60px;
+  }
+
+  .entry-body *, .entry-title * {
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+    color: inherit !important;
+    background: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .entry-body a, .entry-card a {
@@ -1262,6 +1306,7 @@ function renderSection() {
 
 function renderEntryCard(entry, index) {
   const editable = !isReadOnly;
+  const isItalic = entry.italic || false;
   const imagesHtml = (entry.images || []).map((src, imgIdx) => `
     <div class="img-wrapper">
       <img src="${src}" alt="">
@@ -1270,11 +1315,14 @@ function renderEntryCard(entry, index) {
   `).join('');
 
   return `
-    <div class="entry-card" style="animation-delay: ${index * 0.05}s">
+    <div class="entry-card ${isItalic ? 'entry-italic' : ''}" style="animation-delay: ${index * 0.05}s">
       ${editable ? `<div class="entry-actions">
         <button class="entry-btn delete" onclick="deleteEntry(${index})" title="Delete entry">×</button>
       </div>` : ''}
-      <div class="entry-date">${entry.date}</div>
+      <div class="entry-date">
+        ${entry.date}
+        ${editable ? `<button class="italic-toggle ${isItalic ? 'active' : ''}" onclick="toggleItalic(${index})" title="Toggle italic style">𝐼</button>` : ''}
+      </div>
       <div class="entry-title" ${editable ? `contenteditable="true" data-placeholder="Entry title..."
            oninput="updateEntry(${index}, 'title', this.textContent)"` : ''}>${entry.title || ''}</div>
       <div class="entry-body" ${editable ? `contenteditable="true" data-placeholder="Write your thoughts here..."
@@ -1329,6 +1377,15 @@ function deleteEntry(index) {
   renderSection();
 }
 
+function toggleItalic(index) {
+  const entries = getEntries(currentSection);
+  if (entries[index]) {
+    entries[index].italic = !entries[index].italic;
+    saveEntries(currentSection, entries);
+    renderSection();
+  }
+}
+
 function triggerImageUpload(entryIndex) {
   const input = document.createElement('input');
   input.type = 'file';
@@ -1356,6 +1413,16 @@ function removeImage(entryIndex, imgIndex) {
   saveEntries(currentSection, entries);
   renderSection();
 }
+
+// ── Strip formatting on paste into contenteditable fields ──
+document.addEventListener('paste', function(e) {
+  const target = e.target;
+  if (target.getAttribute('contenteditable') === 'true') {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, text);
+  }
+});
 
 // ── Calendar ──
 function renderCalendar() {
